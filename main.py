@@ -1,11 +1,8 @@
-import warnings
 import logging
 import yaml
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 def create_logger():
     logformatter = logging.Formatter(' %(name)s :: %(levelname)-8s :: %(message)s')
@@ -31,6 +28,6 @@ if __name__ == "__main__":
     logger = create_logger()
     with open("settings.yml", "r") as file:
         settings = yaml.safe_load(file)
-    browser = Browser(logger, settings)
-    browser.browser.get("https://www.google.com")
-    browser.browser.quit()
+    b = Browser(logger, settings)
+    b.browser.get("https://www.google.com")
+    b.browser.quit()
