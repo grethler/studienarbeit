@@ -21,20 +21,13 @@ def create_logger():
     return logger
 
 def get_nzz(logger, settings):
-    b = Browser(logger, settings)
-    d = b.browser
-    d.get(settings["urls"]["NZZ"])
+    browser = Browser(logger, settings)
+
     # login
-    d.find_element(By.CLASS_NAME, "fup-login").click()
-    sleep(10)
-    iframe = d.find_element(By.XPATH, "/html/body/div[3]/div/iframe")
-    d.switch_to.frame(iframe)
-    path = '//*[@id="autofill-form"]/screen-login/p['
-    d.find_element(By.XPATH, path+'3]/input').send_keys(settings["email"])
-    d.find_element(By.XPATH, path+'4]/input').send_keys(settings["password"])
-    d.find_element(By.XPATH, path+'6]/button').click()
+    browser.login_nzz()
+    browser.searchTask()
     sleep(2000)
-    d.quit()
+    browser.browser.quit()
 
 if __name__ == "__main__":
     logger = create_logger()
