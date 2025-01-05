@@ -26,6 +26,7 @@ def get_nzz(logger, settings):
     # login
     browser.login_nzz()
     browser.searchTask()
+    browser.articleIteration()
     sleep(2000)
     browser.browser.quit()
 
