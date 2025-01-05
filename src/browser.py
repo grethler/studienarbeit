@@ -52,7 +52,6 @@ class Browser:
         counter = 0
         elements = self.browser.find_elements(By.CLASS_NAME, "fup-archive-result-item-article")
         for i in elements:
-            print(i.id)
             if not counter < 2:
                 break
             counter += 1
