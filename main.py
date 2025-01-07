@@ -6,8 +6,6 @@
 
 import logging
 import yaml
-from time import sleep
-from selenium.webdriver.common.by import By
 from src.browser import Browser
 
 
@@ -27,7 +25,6 @@ def get_nzz(logger, settings):
     browser.login_nzz()
     browser.searchTask()
     browser.articleIteration()
-    sleep(2000)
     browser.browser.quit()
 
 if __name__ == "__main__":

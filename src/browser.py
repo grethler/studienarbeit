@@ -45,23 +45,31 @@ class Browser:
         self.browser.find_element(By.CLASS_NAME, "fup-archive-query-input").send_keys("Migration")
         self.browser.find_element(By.CLASS_NAME, "fup-s-date-start").send_keys("01.01.2014")
         self.browser.find_element(By.CLASS_NAME, "fup-s-date-end").send_keys("31.01.2024")
-        self.browser.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[1]/div[3]/div[1]/div/div[1]/div").click()
+        path = "/html/body/div[2]/div[1]/div[1]/div[3]/div[1]/div/div[1]/div"
+        self.browser.find_element(By.XPATH, path).click()
         sleep(3)
 
     def articleIteration(self):
         counter = 0
-        elements = self.browser.find_elements(By.CLASS_NAME, "fup-archive-result-item-article")
-        for i in elements:
-            if not counter < 2:
+        num = self.browser.find_element(By.CLASS_NAME, "fup-archive-result-hits").text
+        number_of_articles = int(num.split(" ")[0].replace(",", ""))
+        self.browser.find_element(By.CLASS_NAME, "fup-archive-result-sort").click()
+        sleep(1)
+        while True:
+            elements = self.browser.find_elements(By.CLASS_NAME, "fup-archive-result-item-article")
+            for i in elements:
+                actions = ActionChains(self.browser)
+                actions.move_to_element(i).perform()
+                actions.click(i).perform()
+                sleep(2)
+                self.browser.find_element(By.CLASS_NAME, "fup-s-submenu-open").click()
+                self.browser.find_element(By.CLASS_NAME, "fup-s-menu-download-page-confirmation").click()
+                sleep(2)
+                self.browser.back()
+                counter += 1
+            if counter == 3: #== number_of_articles:
                 break
-            counter += 1
-            action = ActionChains(self.browser)
-            action.key_down(Keys.CONTROL).click(i).perform()
-            action.key_up(Keys.CONTROL).perform()
-            self.switchTabContext()
+        sleep(1000)
 
     def switchTabContext(self):
-        0
-
-
-
+        pass
