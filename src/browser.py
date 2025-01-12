@@ -6,6 +6,8 @@
 
 from time import sleep
 from selenium import webdriver
+from pathlib import Path
+import os
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,7 +19,17 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 
 class Browser:
     def __init__(self, logger, settings):
+        
+        download_dir = os.path.abspath("./downloads")
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
+            print(f"Directory created: {download_dir}")
         opts = Options()
+        opts.add_experimental_option("prefs", {
+            "download.default_directory": download_dir,  # Set download folder
+            "download.prompt_for_download": False,      # Disable download prompt
+            "directory_upgrade": True                   # Automatically overwrite
+            })
         #opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(
@@ -81,7 +93,7 @@ class Browser:
 
                     sleep(2)
                     self.browser.back()
-                    sleep(2)
+                    sleep(3)
                     counter += 1
 
                     if counter == 3:  # Change to number_of_articles for full run
@@ -97,8 +109,6 @@ class Browser:
             except StaleElementReferenceException:
                 self.browser.refresh()
                 sleep(2)
-
-        sleep(1000)
 
     def switchTabContext(self):
         pass
