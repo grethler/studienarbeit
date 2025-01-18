@@ -4,13 +4,12 @@
 # Authors: Florian Grethler <grethlef@dhbw-loerrach.de>
 #          Ronald Wagner <wagnerr@dhbw-loerrach.de>
 
-from enum import Enum
 import logging
 import os
+import argparse
 import shutil
 import yaml
 from time import sleep
-from selenium.webdriver.common.by import By
 from src.browser import Browser
 
 
@@ -76,10 +75,32 @@ def sort_articles():
         source_file = f"{download_dir}/{i}"
         destination_path = f"{download_dir}/{year}/{get_month(month)}"
         shutil.move(source_file, destination_path)
-        
+
 
 if __name__ == "__main__":
     logger = create_logger()
+
     with open("settings.yml", "r") as file:
         settings = yaml.safe_load(file)
-    get_nzz(logger, settings)
+
+    args = argparse.ArgumentParser()
+    args.add_argument("-c", "--crawl", action="store_true")
+    args.add_argument("-t", "--train", action="store_true")
+    args = args.parse_args()
+
+    if not args.crawl and not args.train:
+        print("No arguments given. Please use -h to get help.")
+        exit(1)
+
+    if args.crawl and args.train:
+        print("Please use only one argument at a time.")
+        exit(1)
+
+    if args.crawl:
+        get_nzz(logger, settings)
+
+    if args.train:
+        pass
+        #train_model(logger, settings)
+
+    exit(0)

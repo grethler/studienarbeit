@@ -6,20 +6,21 @@
 
 from time import sleep
 from selenium import webdriver
-from pathlib import Path
 import os
+import requests
+import json
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 
 
 class Browser:
     def __init__(self, logger, settings):
-        
+
         download_dir = os.path.abspath("./downloads")
         if not os.path.exists(download_dir):
             os.makedirs(download_dir)
@@ -30,7 +31,7 @@ class Browser:
             "download.prompt_for_download": False,      # Disable download prompt
             "directory_upgrade": True                   # Automatically overwrite
             })
-        #opts.add_argument("--headless")
+        opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(
             service=ChromeService(),
@@ -39,20 +40,30 @@ class Browser:
         self.settings = settings
 
     def login_nzz(self):
+        # get authorization token
+        url = "https://id-eu.piano.io/id/api/v1/identity/login/token?aid=p8HiOl0Zpe"
+        payload = {"password": self.settings["password"], "remember": True,
+                   "login": self.settings["email"], "loginType": "email"}
+        response = requests.post(url, data=json.dumps(payload),
+                                 headers={"Content-Type": "application/json"})
+        token = response.json().get("access_token")
 
         #open URL
         self.browser.get(self.settings["urls"]["NZZ"])
 
+        self.browser.add_cookie({"name": "__utp", "value": token, "domain": ".nzz.ch"})
+        self.browser.refresh()
+
         #focus on login form + login
-        self.browser.find_element(By.CLASS_NAME, "fup-login").click()
-        sleep(1)
-        iframe = self.browser.find_element(By.XPATH, "/html/body/div[3]/div/iframe")
-        self.browser.switch_to.frame(iframe)
-        path = '//*[@id="autofill-form"]/screen-login/p['
-        self.browser.find_element(By.XPATH, path+'3]/input').send_keys(self.settings["email"])
-        self.browser.find_element(By.XPATH, path+'4]/input').send_keys(self.settings["password"])
-        self.browser.find_element(By.XPATH, path+'6]/button').click()
-        self.browser.switch_to.default_content()
+        #self.browser.find_element(By.CLASS_NAME, "fup-login").click()
+        #sleep(3000)
+        #iframe = self.browser.find_element(By.XPATH, "/html/body/div[3]/div/iframe")
+        #self.browser.switch_to.frame(iframe)
+        #path='/html/body/app-main/gm-sso-widget/screen-layout/div/div/main/current-screen/form/screen-login/p['
+        #self.browser.find_element(By.XPATH, path+'3]/input').send_keys(self.settings["email"])
+        #self.browser.find_element(By.XPATH, path+'4]/input').send_keys(self.settings["password"])
+        #self.browser.find_element(By.XPATH, path+'6]/button').click()
+        #self.browser.switch_to.default_content()
         sleep(3)
 
     def searchTask(self):
