@@ -19,10 +19,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 
 
-class Browser:
+class Browser_handelsblatt:
     def __init__(self, logger, settings):
 
-        download_dir = os.path.abspath("./downloads")
+        download_dir = os.path.abspath("./downloads/handelsblatt")
         if not os.path.exists(download_dir):
             os.makedirs(download_dir)
             print(f"Directory created: {download_dir}")
@@ -41,38 +41,14 @@ class Browser:
         self.settings = settings
 
     def get_nzz_token(self):
-        url = "https://id-eu.piano.io/id/api/v1/identity/login/token?aid=p8HiOl0Zpe"
-        payload = {"password": self.settings["password"], "remember": True,
-                "login": self.settings["email"], "loginType": "email"}
-        response = requests.post(url, data=json.dumps(payload),
-                                headers={"Content-Type": "application/json"})
-        token = response.json()
-        expires = datetime.datetime.now() + datetime.timedelta(seconds=token.get("expires_in"))
-        token["expires"] = expires.timestamp()
-        return json.dumps(token)
+        0
 
-    def login_nzz(self):
-        # get authorization token
-        # limit login attemts by saving token in file
-        if not os.path.exists("cookie_nzz"):
-            token = self.get_nzz_token()
-            with open("cookie_nzz", "w") as f:
-                f.write(token)
-        else:
-            with open("cookie_nzz", "r") as f:
-                token = json.loads(f.read())
-                if datetime.datetime.now().timestamp() > token.get("expires"):
-                    token = self.get_nzz_token()
-                    with open("cookie_nzz", "w") as f:
-                        f.write(token)
-                else:
-                    token = token.get("access_token")
-
+    def login_handelsblatt(self):
         #open URL
-        self.browser.get(self.settings["urls"]["NZZ"])
+        self.browser.get(self.settings["urls"]["Handelsblatt"])
 
-        self.browser.add_cookie({"name": "__utp", "value": token, "domain": ".nzz.ch"})
-        self.browser.refresh()
+        #elf.browser.add_cookie({"name": "__utp", "value": token, "domain": ".nzz.ch"})
+        #self.browser.refresh()
 
         #focus on login form + login
         #self.browser.find_element(By.CLASS_NAME, "fup-login").click()

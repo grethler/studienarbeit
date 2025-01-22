@@ -10,7 +10,8 @@ import argparse
 import shutil
 import yaml
 from time import sleep
-from src.browser import Browser
+from src.browser_nzz import Browser_nzz
+from src.browser_handelsblatt import Browser_handelsblatt
 
 
 def create_logger():
@@ -22,13 +23,24 @@ def create_logger():
     return logger
 
 def get_nzz(logger, settings):
-    browser = Browser(logger, settings)
+    browser = Browser_nzz(logger, settings)
 
     # login
     browser.login_nzz()
     browser.searchTask()
     browser.articleIteration()
-    #sort_articles()
+    #sort_articles("nzz")
+    #sleep(2000)
+    browser.browser.quit()
+
+def get_handelsblatt(logger, settings):
+    browser = Browser_handelsblatt(logger, settings)
+
+    # login
+    browser.login_handelsblatt()
+    browser.searchTask()
+    browser.articleIteration()
+    #sort_articles("handelsblatt")
     #sleep(2000)
     browser.browser.quit()
 
@@ -59,8 +71,8 @@ def get_nzz(logger, settings):
 #         case("12"):
 #             return "Dezember"
 
-def sort_articles():
-    download_dir = os.path.abspath("./downloads")
+def sort_articles(media):
+    download_dir = os.path.abspath(f"./downloads/{media}")
     for i in os.listdir(download_dir):
         splitted = i.split("_")
         date = splitted[len(splitted) - 1].strip(".pdf")
@@ -99,6 +111,7 @@ if __name__ == "__main__":
 
     if args.crawl:
         get_nzz(logger, settings)
+        get_handelsblatt(logger, settings)
 
     if args.sort:
         sort_articles()
