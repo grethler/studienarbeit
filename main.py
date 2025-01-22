@@ -22,8 +22,8 @@ def create_logger():
     logger.handlers[0].setFormatter(logformatter)
     return logger
 
-def get_nzz(logger, settings):
-    browser = Browser_nzz(logger, settings)
+def get_nzz(logger, settings, cli):
+    browser = Browser_nzz(logger, settings, cli)
 
     # login
     browser.login_nzz()
@@ -33,8 +33,8 @@ def get_nzz(logger, settings):
     #sleep(2000)
     browser.browser.quit()
 
-def get_handelsblatt(logger, settings):
-    browser = Browser_handelsblatt(logger, settings)
+def get_handelsblatt(logger, settings, cli):
+    browser = Browser_handelsblatt(logger, settings, cli)
 
     # login
     browser.login_handelsblatt()
@@ -43,33 +43,6 @@ def get_handelsblatt(logger, settings):
     #sort_articles("handelsblatt")
     #sleep(2000)
     browser.browser.quit()
-
-# def get_month(month):
-#     match(month):
-#         case("01"):
-#             return "Januar"
-#         case("02"):
-#             return "Februar"
-#         case("03"):
-#             return "März"
-#         case("04"):
-#             return "April"
-#         case("05"):
-#             return "Mai"
-#         case("06"):
-#             return "Juni"
-#         case("07"):
-#             return "Juli"
-#         case("08"):
-#             return "August"
-#         case("09"):
-#             return "September"
-#         case("10"):
-#             return "Oktober"
-#         case("11"):
-#             return "November"
-#         case("12"):
-#             return "Dezember"
 
 def sort_articles(media):
     download_dir = os.path.abspath(f"./downloads/{media}")
@@ -96,9 +69,10 @@ if __name__ == "__main__":
         settings = yaml.safe_load(file)
 
     args = argparse.ArgumentParser()
-    args.add_argument("-c", "--crawl", action="store_true")
-    args.add_argument("-s", "--sort", action="store_true")
-    args.add_argument("-t", "--train", action="store_true")
+    args.add_argument("-c", "--crawl", action="store_true", help="Crawl the websites")
+    args.add_argument("-s", "--sort", action="store_true", help="Sort the articles")
+    args.add_argument("-t", "--train", action="store_true", help="Train the model")
+    args.add_argument("--cli", action="store_true", help="Use headless mode")
     args = args.parse_args()
 
     if not any([args.crawl, args.train, args.sort]):
@@ -110,11 +84,12 @@ if __name__ == "__main__":
         exit(1)
 
     if args.crawl:
-        get_nzz(logger, settings)
-        get_handelsblatt(logger, settings)
+        get_nzz(logger, settings, args.cli)
+        get_handelsblatt(logger, settings, args.cli)
 
     if args.sort:
-        sort_articles()
+        sort_articles("nzz")
+        sort_articles("handelsblatt")
 
     if args.train:
         pass

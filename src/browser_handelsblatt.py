@@ -20,7 +20,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 
 
 class Browser_handelsblatt:
-    def __init__(self, logger, settings):
+    def __init__(self, logger, settings, cli):
 
         download_dir = os.path.abspath("./downloads/handelsblatt")
         if not os.path.exists(download_dir):
@@ -32,7 +32,8 @@ class Browser_handelsblatt:
             "download.prompt_for_download": False,      # Disable download prompt
             "directory_upgrade": True                   # Automatically overwrite
             })
-        #opts.add_argument("--headless")
+        if cli:
+            opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(
             service=ChromeService(),
@@ -40,26 +41,9 @@ class Browser_handelsblatt:
         self.logger = logger
         self.settings = settings
 
-    def get_nzz_token(self):
-        0
-
     def login_handelsblatt(self):
         #open URL
         self.browser.get(self.settings["urls"]["Handelsblatt"])
-
-        #elf.browser.add_cookie({"name": "__utp", "value": token, "domain": ".nzz.ch"})
-        #self.browser.refresh()
-
-        #focus on login form + login
-        #self.browser.find_element(By.CLASS_NAME, "fup-login").click()
-        #sleep(3000)
-        #iframe = self.browser.find_element(By.XPATH, "/html/body/div[3]/div/iframe")
-        #self.browser.switch_to.frame(iframe)
-        #path='/html/body/app-main/gm-sso-widget/screen-layout/div/div/main/current-screen/form/screen-login/p['
-        #self.browser.find_element(By.XPATH, path+'3]/input').send_keys(self.settings["email"])
-        #self.browser.find_element(By.XPATH, path+'4]/input').send_keys(self.settings["password"])
-        #self.browser.find_element(By.XPATH, path+'6]/button').click()
-        #self.browser.switch_to.default_content()
         sleep(3)
 
     def searchTask(self):

@@ -20,7 +20,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 
 
 class Browser_nzz:
-    def __init__(self, logger, settings):
+    def __init__(self, logger, settings, cli):
 
         download_dir = os.path.abspath("./downloads/nzz")
         if not os.path.exists(download_dir):
@@ -32,7 +32,8 @@ class Browser_nzz:
             "download.prompt_for_download": False,      # Disable download prompt
             "directory_upgrade": True                   # Automatically overwrite
             })
-        opts.add_argument("--headless")
+        if cli:
+            opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(
             service=ChromeService(),
