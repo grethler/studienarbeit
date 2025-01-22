@@ -8,6 +8,7 @@ from time import sleep
 from selenium import webdriver
 import os
 import requests
+import datetime
 import json
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -31,7 +32,7 @@ class Browser:
             "download.prompt_for_download": False,      # Disable download prompt
             "directory_upgrade": True                   # Automatically overwrite
             })
-        opts.add_argument("--headless")
+        #opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(
             service=ChromeService(),
@@ -39,14 +40,33 @@ class Browser:
         self.logger = logger
         self.settings = settings
 
-    def login_nzz(self):
-        # get authorization token
+    def get_nzz_token(self):
         url = "https://id-eu.piano.io/id/api/v1/identity/login/token?aid=p8HiOl0Zpe"
         payload = {"password": self.settings["password"], "remember": True,
-                   "login": self.settings["email"], "loginType": "email"}
+                "login": self.settings["email"], "loginType": "email"}
         response = requests.post(url, data=json.dumps(payload),
-                                 headers={"Content-Type": "application/json"})
-        token = response.json().get("access_token")
+                                headers={"Content-Type": "application/json"})
+        token = response.json()
+        expires = datetime.datetime.now() + datetime.timedelta(seconds=token.get("expires_in"))
+        token["expires"] = expires.timestamp()
+        return json.dumps(token)
+
+    def login_nzz(self):
+        # get authorization token
+        # limit login attemts by saving token in file
+        if not os.path.exists("cookie_nzz"):
+            token = self.get_nzz_token()
+            with open("cookie_nzz", "w") as f:
+                f.write(token)
+        else:
+            with open("cookie_nzz", "r") as f:
+                token = json.loads(f.read())
+                if datetime.datetime.now().timestamp() > token.get("expires"):
+                    token = self.get_nzz_token()
+                    with open("cookie_nzz", "w") as f:
+                        f.write(token)
+                else:
+                    token = token.get("access_token")
 
         #open URL
         self.browser.get(self.settings["urls"]["NZZ"])
@@ -120,6 +140,3 @@ class Browser:
             except StaleElementReferenceException:
                 self.browser.refresh()
                 sleep(2)
-
-    def switchTabContext(self):
-        pass

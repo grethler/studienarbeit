@@ -5,3 +5,5 @@ settings.yml
 __pycache__/
 *.pyc
 downloads/
+cookie_*
+*.pdf
